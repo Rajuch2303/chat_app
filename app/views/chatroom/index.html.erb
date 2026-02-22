@@ -1,0 +1,45 @@
+<!-- app/views/chatroom/index.html.erb -->
+<h1>Chatroom</h1>
+
+<div id="chatbox" style="border:1px solid #ccc; padding:10px; height:200px; overflow-y:scroll;">
+  <% @messages.each do |msg| %>
+    <p><%= msg.content %></p>
+  <% end %>
+</div>
+
+<input type="text" id="message_input" placeholder="Type a message..." />
+<button onclick="sendMessage()">Send</button>
+
+<script>
+  const chatSocket = new WebSocket(`ws://${window.location.host}/cable`);
+
+  chatSocket.onopen = function () {
+    chatSocket.send(JSON.stringify({
+      command: "subscribe",
+      identifier: JSON.stringify({ channel: "ChatroomChannel" })
+    }));
+  };
+
+  chatSocket.onmessage = function (event) {
+    const response = JSON.parse(event.data);
+    if (response.type === "ping" || !response.message) return;
+
+    const chatbox = document.getElementById("chatbox");
+    const message = document.createElement("p");
+    message.innerText = response.message.content;
+    chatbox.appendChild(message);
+    chatbox.scrollTop = chatbox.scrollHeight;
+  };
+
+  function sendMessage() {
+    const input = document.getElementById("message_input");
+    const content = input.value;
+    input.value = "";
+
+    chatSocket.send(JSON.stringify({
+      command: "message",
+      identifier: JSON.stringify({ channel: "ChatroomChannel" }),
+      data: JSON.stringify({ content: content })
+    }));
+  }
+</script>
