@@ -7,8 +7,4 @@ class ChatroomChannel < ApplicationCable::Channel
     Message.create!(content: data["content"])
     ActionCable.server.broadcast("chatroom", data)
   end
-
-  def unsubscribed
-    # Any cleanup needed when channel is unsubscribed
-  end
 end
