@@ -3,6 +3,6 @@
 
 import { createConsumer } from "@rails/actioncable"
 
-export default createConsumer(
-  `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}/cable`
-)
+const protocol = window.location.protocol === "https:" ? "wss" : "ws"
+
+export default createConsumer(`${protocol}://${window.location.host}/cable`)
